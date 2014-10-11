@@ -25,23 +25,11 @@
 #ifndef _BSBPORT_H
 #define _BSBPORT_H
 
-#define SOT_BYTE 0xDC
-
 struct bsbport_msg
 {
-  union {
-    uint32_t raw;
-    struct { uint8_t p1, p2, p3, p4; } data;
-  } p;
-  uint8_t src;
-  uint8_t dest;
-  uint8_t type;
-  int16_t value;
-  uint8_t data_length;
-  uint8_t data[BSBPORT_MESSAGE_MAX_LEN - 11];
-#ifdef BSBPORT_MQTT_SUPPORT
-  uint8_t mqtt_new;
-#endif
+  uint16_t len;
+  uint8_t data[BSBPORT_MESSAGE_MAX_LEN];
+  int16_t value_raw;            // Raw Value as Integer (RAW)
 };
 
 struct bsbport_buffer_msg
@@ -97,7 +85,8 @@ enum msg_src
 };
 
 void bsbport_init(void);
-uint8_t bsbport_txstart(const uint8_t * const data, const uint16_t len);
+uint8_t bsbport_tx_net_start(uint8_t * data, uint16_t len);
+uint8_t bsbport_txstart(uint8_t * data, uint16_t len);
 
 extern struct bsbport_buffer_net bsbport_sendnet_buffer;
 extern struct bsbport_buffer_net bsbport_recvnet_buffer;
@@ -142,5 +131,6 @@ usart_init(void) \
     USART_2X(); \
   } \
 }
+
 
 #endif /* _BSBPORT_H */

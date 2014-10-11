@@ -23,7 +23,7 @@
 #ifndef _BSBPORT_HELPER_H
 #define _BSBPORT_HELPER_H
 
-uint16_t bsbport_crc(const uint8_t * const buffer, const uint8_t length);
-int16_t bsbport_ConvertToInt16(const uint8_t * const msg);
+uint16_t bsbport_crc(uint8_t * buffer, uint8_t length);
+int16_t bsbport_ConvertToInt16(uint8_t * msg);
 
 #endif /* _BSBPORT_HELPER_H */
