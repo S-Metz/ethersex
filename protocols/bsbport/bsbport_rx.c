@@ -41,6 +41,9 @@ bsbport_rx_init(void)
   {
     bsbport_msg_buffer.msg[i].len = 0;
     bsbport_msg_buffer.msg[i].value_raw = 0;
+#ifdef BSBPORT_MQTT_SUPPORT
+    bsbport_msg_buffer.msg[i].mqtt_new = 0;
+#endif
     for (uint8_t j = 0; j < BSBPORT_MESSAGE_MAX_LEN; j++)
     {
       bsbport_msg_buffer.msg[i].data[j] = 0;
@@ -284,6 +287,9 @@ bsbport_store_msg(uint8_t * msg, uint8_t len)
         memcpy(bsbport_msg_buffer.msg[i].data, msg, len);
         bsbport_msg_buffer.msg[i].len = len;
         bsbport_calc_value(&bsbport_msg_buffer.msg[i]);
+#ifdef BSBPORT_MQTT_SUPPORT
+        bsbport_msg_buffer.msg[i].mqtt_new = 1;
+#endif
         saved = 1;
       }
     }
@@ -295,6 +301,9 @@ bsbport_store_msg(uint8_t * msg, uint8_t len)
       memcpy(bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data, msg, len);
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].len = len;
       bsbport_calc_value(&bsbport_msg_buffer.msg[bsbport_msg_buffer.act++]);
+#ifdef BSBPORT_MQTT_SUPPORT
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].mqtt_new = 1;
+#endif
     }
   }
   if (bsbport_msg_buffer.act >= BSBPORT_MESSAGE_BUFFER_LEN)

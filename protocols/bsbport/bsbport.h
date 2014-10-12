@@ -30,6 +30,9 @@ struct bsbport_msg
   uint16_t len;
   uint8_t data[BSBPORT_MESSAGE_MAX_LEN];
   int16_t value_raw;            // Raw Value as Integer (RAW)
+#ifdef BSBPORT_MQTT_SUPPORT
+  uint8_t mqtt_new;
+#endif
 };
 
 struct bsbport_buffer_msg
