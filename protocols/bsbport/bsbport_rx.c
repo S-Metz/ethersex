@@ -77,18 +77,13 @@ bsbport_rx_periodic(void)
 
       // read the rest of the message
       while (bsbport_recv_buffer.len > bsbport_recv_buffer.read)
-//                      && bsbport_recv_buffer.len > 10)        // Minimal Message Size still reached 
       {
         read = bsbport_recv_buffer.data[bsbport_recv_buffer.read++];
         buffer[i++] = read;
 
-        // Break if next byte signals next message, shouldn´t do that when reading partial messages because of endless loop
-        if (0
-            //((bsbport_recv_buffer.len > bsbport_recv_buffer.read) 
-            //&& (bsbport_recv_buffer.data[bsbport_recv_buffer.read] == 0xDC))
-            //      Break if we are at max message lenght   
-            || (i >= BSBPORT_MESSAGE_MAX_LEN)
-            // Break if message seems to be completely received (i==msg.length)
+            // Break if we are at max message lenght   
+            // or if message seems to be completely received (i==msg.length)
+        if (i >= BSBPORT_MESSAGE_MAX_LEN
             || ((i > LEN) && (i >= buffer[LEN])))
         {
           break;
@@ -110,9 +105,9 @@ bsbport_rx_periodic(void)
              buffer[16], buffer[17], buffer[18], buffer[19], i);
 #endif
           bsbport_rx_ok++;
-          /*      Store only Messages which contain information                                           */
-          /*      Store only Messages which are addressed to us                                           */
-          /*      Valid Message received  -> If type = Answer or Info Get Value           */
+          /*      Store Messages which contain information                                           */
+          /*      Store Messages which are addressed to us                                           */
+          /*      Valid Message received  -> If type = Answer or Info Get Value                   */
           /*      Valid Message received  -> If dest = OwnAddress or Info Get Value               */
           if (buffer[TYPE] == ANSWER
               || buffer[TYPE] == INFO
@@ -286,10 +281,14 @@ bsbport_store_msg(uint8_t * msg, uint8_t len)
       {
         memcpy(bsbport_msg_buffer.msg[i].data, msg, len);
         bsbport_msg_buffer.msg[i].len = len;
-        bsbport_calc_value(&bsbport_msg_buffer.msg[i]);
+        bsbport_msg_buffer.msg[i].data_lenght = msg[LEN] - DATA - 2;
+        bsbport_msg_buffer.msg[i].src = msg[SRC];
+        bsbport_msg_buffer.msg[i].dest = msg[DEST];
+        bsbport_msg_buffer.msg[i].type = msg[TYPE];
 #ifdef BSBPORT_MQTT_SUPPORT
         bsbport_msg_buffer.msg[i].mqtt_new = 1;
 #endif
+        bsbport_calc_value(&bsbport_msg_buffer.msg[i]);
         saved = 1;
       }
     }
@@ -300,10 +299,14 @@ bsbport_store_msg(uint8_t * msg, uint8_t len)
     {
       memcpy(bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data, msg, len);
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].len = len;
-      bsbport_calc_value(&bsbport_msg_buffer.msg[bsbport_msg_buffer.act++]);
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data_lenght = msg[LEN] - DATA - 2;
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].src = msg[SRC];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].dest = msg[DEST];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].type = msg[TYPE];
 #ifdef BSBPORT_MQTT_SUPPORT
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].mqtt_new = 1;
 #endif
+      bsbport_calc_value(&bsbport_msg_buffer.msg[bsbport_msg_buffer.act++]);
     }
   }
   if (bsbport_msg_buffer.act >= BSBPORT_MESSAGE_BUFFER_LEN)

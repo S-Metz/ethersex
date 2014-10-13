@@ -217,7 +217,7 @@ parse_cmd_bsbport_query(char *cmd, char *output, uint16_t len)
     if (bsbport_query(p1, p2, p3, p4, dest))
       return ECMD_FINAL_OK;
     else
-      return ECMD_FINAL(snprintf_P(output, len, PSTR("txbuffer is full!")));
+      return ECMD_ERR_WRITE_ERROR;
   }
   else
     return ECMD_ERR_PARSE_ERROR;
@@ -226,7 +226,7 @@ parse_cmd_bsbport_query(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
 {
-  int32_t fp_val = 0;
+  int16_t fp_val = 0;
   uint16_t raw_val = 0;
   uint8_t p1 = 0;
   uint8_t p2 = 0;
@@ -290,7 +290,7 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
       datalen = 3;
     }
     else
-      return ECMD_FINAL(snprintf_P(output, len, PSTR("type unknown")));
+      return ECMD_ERR_PARSE_ERROR;
 
 #ifdef DEBUG_BSBPORT_ECMD
     debug_printf("ECMD set parsed data: %02x %02x %02x %02d ", data[0],
@@ -300,11 +300,11 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
     if (bsbport_set(p1, p2, p3, p4, dest, data, datalen))
       return ECMD_FINAL_OK;
     else
-      return ECMD_FINAL(snprintf_P(output, len, PSTR("txbuffer is full!")));
+      return ECMD_ERR_WRITE_ERROR;
   }
   else
     return
-      ECMD_FINAL(snprintf_P(output, len, PSTR("param count at: %d"), ret));
+      ECMD_ERR_PARSE_ERROR;
 }
 
 
