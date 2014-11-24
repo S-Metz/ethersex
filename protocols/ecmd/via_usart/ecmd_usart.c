@@ -79,9 +79,9 @@ ecmd_serial_usart_periodic(void)
       recv_len = 0;
     }
 
-    write_buffer[write_len++] = '\r';
     write_buffer[write_len++] = '\n';
-
+    write_buffer[write_len++] = '\r';
+    
     RS485_ENABLE_TX;
 
     /* Enable the tx interrupt and send the first character */
@@ -107,11 +107,13 @@ ISR(usart(USART,_RX_vect))
   if (data == '\n' || data == '\r' || recv_len == sizeof(recv_buffer)) {
     recv_buffer[recv_len] = 0;
     must_parse = 1;
-    usart(UDR) = '\r';
-    while (!(usart(UCSR,A) & _BV(usart(UDRE))));
-    usart(UDR) = '\n';
-    while (!(usart(UCSR,A) & _BV(usart(UDRE))));
-    return ;
+    #ifndef ECMD_SERIAL_USART_NO_ECHO
+      usart(UDR) = '\r';
+      while (!(usart(UCSR,A) & _BV(usart(UDRE))));
+      usart(UDR) = '\n';
+      while (!(usart(UCSR,A) & _BV(usart(UDRE))));
+    #endif /* ECMD_SERIAL_USART_NO_ECHO */
+  return ;
   }
 
 #ifndef ECMD_SERIAL_USART_NO_ECHO
